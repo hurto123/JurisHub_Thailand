@@ -37,6 +37,7 @@
         <div class="hidden md:flex space-x-8">
             <a href="index.html" class="nav-link">หน้าหลัก</a>
             <a href="catalog.html" class="nav-link">คลังวิชา</a>
+            <a href="articles.html" class="nav-link">คลังมาตรา</a>
             <a href="exam.html" class="nav-link">ข้อสอบเก่า</a>
             <a href="about.html" class="nav-link">เกี่ยวกับ</a>
         </div>
@@ -52,6 +53,7 @@
         </button>
         <a href="index.html" class="text-white text-2xl py-4 border-b border-white/20 font-serif">หน้าหลัก</a>
         <a href="catalog.html" class="text-white text-2xl py-4 border-b border-white/20 font-serif">คลังวิชา</a>
+        <a href="articles.html" class="text-white text-2xl py-4 border-b border-white/20 font-serif">คลังมาตรา</a>
         <a href="exam.html" class="text-white text-2xl py-4 border-b border-white/20 font-serif">ข้อสอบเก่า</a>
         <a href="about.html" class="text-white text-2xl py-4 font-serif">เกี่ยวกับ</a>
     </div>
@@ -112,6 +114,17 @@
             </div>
             <div id="content-body" class="hidden"></div>
 
+            <!-- Related Articles Section [NEW] -->
+            <section id="related-articles-section" class="mt-12 pt-10 border-t-2 border-slate-100 hidden">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-2 h-8 bg-accent rounded-full"></div>
+                    <h3 class="text-2xl font-bold font-serif text-primary">มาตราที่เกี่ยวข้องในวิชานี้</h3>
+                </div>
+                <div id="related-articles-list" class="space-y-4">
+                    <!-- Loaded dynamically from articlesData -->
+                </div>
+            </section>
+
             <!-- Navigation buttons -->
             <div id="chapter-nav" class="hidden mt-12 pt-8 border-t border-slate-200 flex justify-between items-center">
                 <button id="prev-chapter" class="flex items-center gap-2 px-5 py-3 btn-outline rounded-xl font-medium">
@@ -134,6 +147,7 @@
     </footer>
 
     <script src="js/data.js"></script>
+    <script src="js/articles-data.js"></script>
     <script src="js/content-data.js"></script>
     <script src="js/viewer.js"></script>
 </body>

@@ -14,10 +14,10 @@ echo [3] Installing PyTorch with CUDA 12.1 support...
 call pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
 
 echo [4] Installing Dependencies for GOT-OCR2.0...
-call pip install transformers accelerate tiktoken verovio
+call pip install transformers accelerate tiktoken verovio six torchvision
 
-echo [5] Installing pdf2image for PDF processing...
-call pip install pdf2image Pillow
+echo [5] Installing pdf2image and pdfplumber for PDF processing...
+call pip install pdf2image Pillow pdfplumber
 
 echo ==========================================
 echo Setup Complete!

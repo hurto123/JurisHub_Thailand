@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Get subject ID from URL ---
     const params = new URLSearchParams(window.location.search);
-    const subjectId = params.get('id') || 'law-003'; // default to law-003 for demo
+    const subjectId = params.get('id') || 'law-civ-02'; // default to law-civ-02 for demo
     let currentChapterIndex = parseInt(params.get('ch') || '0');
 
     const subjectData = chaptersData[subjectId];
@@ -142,6 +142,47 @@ document.addEventListener('DOMContentLoaded', () => {
         url.searchParams.set('id', subjectId);
         url.searchParams.set('ch', currentChapterIndex);
         window.history.replaceState({}, '', url);
+        renderRelatedArticles();
+    };
+
+    // --- Render Related Articles (Subject Specific) [NEW] ---
+    const renderRelatedArticles = () => {
+        const sectionEl = document.getElementById('related-articles-section');
+        const listEl = document.getElementById('related-articles-list');
+        
+        // Filter articles tagged with this subjectId
+        const filtered = articlesData.filter(art => art.related_subject_id === subjectId);
+
+        if (filtered.length === 0) {
+            sectionEl.classList.add('hidden');
+            return;
+        }
+
+        sectionEl.classList.remove('hidden');
+        listEl.innerHTML = filtered.map(art => {
+            // Mapping code type to colors
+            let colorClass = 'border-slate-300';
+            if(art.code_type === 'ป.พ.พ.') colorClass = 'border-blue-400';
+            if(art.code_type === 'ป.อ.') colorClass = 'border-red-400';
+
+            return `
+            <div class="bg-white rounded-2xl p-6 border-l-8 ${colorClass} shadow-sm transition-all hover:shadow-md">
+                <div class="flex justify-between items-start mb-3">
+                    <span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-xs font-bold uppercase">${art.code_type}</span>
+                    <span class="text-primary font-bold font-serif">${art.article_no}</span>
+                </div>
+                <div class="space-y-3">
+                    <div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-tighter mb-1">ตัวบทกฎหมาย:</p>
+                        <p class="text-slate-600 text-sm leading-relaxed italic border-l-2 border-slate-100 pl-3">"${art.original_text}"</p>
+                    </div>
+                    <div class="bg-green-50 p-3 rounded-lg border border-green-100">
+                        <p class="text-xs font-bold text-green-600 uppercase tracking-tighter mb-1">AI สรุปใจความ:</p>
+                        <p class="text-primary text-sm font-medium">${art.summary_by_ai}</p>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
     };
 
     // --- Navigation Buttons ---
