@@ -1,0 +1,199 @@
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&family=Sarabun:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Colors */
+  --primary: #1E293B;       /* Midnight Blue */
+  --secondary: #64748B;     /* Slate Gray */
+  --secondary-light: #94a3b8;
+  --accent: #92400E;        /* Gold/Brass */
+  --accent-light: #B45309;
+  --bg: #F8FAFC;            /* Off-White */
+  --surface: #FFFFFF;
+  --text-main: #0F172A;
+  --border: #E2E8F0;
+  
+  /* Layout & Effects */
+  --shadow-soft: 0 4px 24px rgba(30, 41, 59, 0.08);
+  --shadow-hover: 0 12px 32px rgba(30, 41, 59, 0.12);
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.18);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Prompt', sans-serif;
+  background-color: var(--bg);
+  color: var(--text-main);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: 'Sarabun', serif;
+}
+
+/* Utilities */
+.text-primary { color: var(--primary); }
+.text-secondary { color: var(--secondary); }
+.text-accent { color: var(--accent); }
+.bg-primary { background-color: var(--primary); }
+.bg-accent { background-color: var(--accent); }
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+  transition: all 0.3s ease;
+}
+.btn-primary:hover {
+  background-color: #0F172A;
+  box-shadow: 0 4px 12px rgba(30, 41, 59, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-accent {
+  background-color: var(--accent);
+  color: white;
+  transition: all 0.3s ease;
+}
+.btn-accent:hover {
+  background-color: var(--accent-light);
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  border: 1px solid var(--border);
+  color: var(--primary);
+  background-color: transparent;
+  transition: all 0.3s ease;
+}
+.btn-outline:hover {
+  border-color: var(--primary);
+  background-color: rgba(30, 41, 59, 0.05);
+}
+
+/* Cards & Glassmorphism */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+  transition: all 0.3s ease;
+}
+.glass-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Navigation */
+.navbar {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.nav-link {
+  position: relative;
+  color: var(--secondary);
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+.nav-link:hover, .nav-link.active {
+  color: var(--primary);
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: var(--accent);
+  transition: width 0.3s ease;
+}
+.nav-link:hover::after, .nav-link.active::after {
+  width: 100%;
+}
+
+/* Search Focus Glow */
+.search-input:focus {
+  outline: none;
+  border-color: rgba(30, 41, 59, 0.4);
+  box-shadow: 0 0 0 4px rgba(30, 41, 59, 0.1);
+}
+
+/* Modal */
+.modal-overlay {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+.modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+.modal-content {
+  transform: scale(0.95) translateY(20px);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+.modal-overlay.active .modal-content {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+/* Checkbox specific to Midnight Blue */
+.custom-checkbox:checked {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+/* Drawer Mobile */
+.drawer {
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+.drawer.open {
+  transform: translateX(0);
+}
+
+/* Badge specific styling based on category string can be manipulated via inline Tailwind classes usually, but we define bases here */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.badge-blue { background-color: #E0F2FE; color: #0284C7; }
+.badge-green { background-color: #DCFCE7; color: #16A34A; }
+.badge-red { background-color: #FEE2E2; color: #DC2626; }
+.badge-purple { background-color: #F3E8FF; color: #9333EA; }
+.badge-orange { background-color: #FFEDD5; color: #EA580C; }
+.badge-gray { background-color: #F1F5F9; color: #475569; }
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--secondary-light);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary);
+}

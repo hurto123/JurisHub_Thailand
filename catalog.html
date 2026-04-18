@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คลังวิชา - JurisHub Thailand</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E293B',
+                        secondary: '#64748B',
+                        accent: '#92400E',
+                        bg: '#F8FAFC',
+                    },
+                    fontFamily: {
+                        sans: ['Prompt', 'sans-serif'],
+                        serif: ['Sarabun', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-bg text-slate-900 font-sans antialiased flex flex-col min-h-screen">
+
+    <!-- Navigation Bar -->
+    <nav class="navbar w-full py-4 px-6 md:px-12 flex justify-between items-center shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-primary text-white rounded-lg flex items-center justify-center font-serif font-bold text-xl shadow-md">
+                JH
+            </div>
+            <a href="index.html" class="text-2xl font-serif font-bold text-primary tracking-tight hidden sm:block">JurisHub <span class="text-accent text-lg">Thailand</span></a>
+        </div>
+        
+        <!-- Desktop Menu -->
+        <div class="hidden md:flex space-x-8">
+            <a href="index.html" class="nav-link">หน้าหลัก</a>
+            <a href="catalog.html" class="nav-link active">คลังวิชา</a>
+            <a href="exam.html" class="nav-link">ข้อสอบเก่า</a>
+            <a href="about.html" class="nav-link">เกี่ยวกับ</a>
+        </div>
+
+        <!-- Mobile Menu/Filter Buttons -->
+        <div class="flex items-center gap-4 md:hidden">
+            <button id="mobile-filter-btn" class="bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200 text-primary font-medium flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                กรองผล
+            </button>
+            <button id="mobile-menu-btn" class="text-primary focus:outline-none">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="fixed inset-0 bg-primary/95 z-50 transform translate-x-full transition-transform duration-300 md:hidden flex flex-col pt-20 px-8">
+        <button id="close-menu-btn" class="absolute top-6 right-6 text-white">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        <a href="index.html" class="text-white text-2xl py-4 border-b border-white/20 font-serif">หน้าหลัก</a>
+        <a href="catalog.html" class="text-white text-2xl py-4 border-b border-white/20 font-serif">คลังวิชา</a>
+        <a href="exam.html" class="text-white text-2xl py-4 border-b border-white/20 font-serif">ข้อสอบเก่า</a>
+        <a href="about.html" class="text-white text-2xl py-4 font-serif">เกี่ยวกับ</a>
+    </div>
+
+    <!-- Header Section -->
+    <header class="bg-white border-b border-slate-200 py-8 px-6 md:px-12">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+                <h1 class="text-3xl font-bold font-serif text-primary mb-2">ค้นหารายวิชา</h1>
+                <p class="text-secondary" id="results-count">กำลังโหลดข้อมูล...</p>
+            </div>
+            
+            <div class="w-full md:w-96 relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <input type="text" id="search-input" class="search-input w-full py-3 pl-10 pr-4 bg-bg rounded-xl border border-slate-200 shadow-inner text-base outline-none transition-all" placeholder="ค้นหาจากชื่อวิชา, รหัส...">
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto w-full px-6 md:px-12 py-8 flex flex-col md:flex-row gap-8">
+        
+        <!-- Sidebar Filter (Desktop) & Drawer (Mobile) -->
+        <aside id="filter-sidebar" class="drawer fixed md:static inset-y-0 left-0 z-40 w-72 bg-white md:bg-transparent md:transform-none shadow-2xl md:shadow-none p-6 md:p-0 overflow-y-auto md:overflow-visible">
+            <div class="flex justify-between items-center mb-6 md:hidden">
+                <h2 class="text-xl font-bold font-serif text-primary">ตัวกรอง</h2>
+                <button id="close-filter-btn" class="text-slate-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Sort By -->
+            <div class="mb-8">
+                <h3 class="font-bold text-primary mb-3">เรียงลำดับ</h3>
+                <select id="sort-select" class="w-full bg-white border border-slate-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary">
+                    <option value="name_th_asc">ชื่อวิชา (ก-ฮ)</option>
+                    <option value="code_asc">รหัสวิชา</option>
+                </select>
+            </div>
+
+            <!-- Categories -->
+            <div class="mb-8">
+                <h3 class="font-bold text-primary mb-3">หมวดหมู่</h3>
+                <div class="space-y-2" id="category-filters">
+                    <!-- Checkboxes mapped from data.js -->
+                </div>
+            </div>
+
+            <!-- Universities -->
+            <div class="mb-8">
+                <h3 class="font-bold text-primary mb-3">มหาวิทยาลัย</h3>
+                <div class="space-y-2" id="university-filters">
+                    <!-- Checkboxes mapped from data.js -->
+                </div>
+            </div>
+
+            <button id="reset-filters" class="w-full py-2 btn-outline rounded-lg text-sm font-medium">ล้างตัวกรองทั้งหมด</button>
+        </aside>
+
+        <!-- Subject Grid -->
+        <div class="flex-1">
+            <!-- No results banner -->
+            <div id="no-results" class="hidden bg-white rounded-2xl p-12 text-center shadow-sm border border-slate-100">
+                <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">🔍</div>
+                <h3 class="text-xl font-bold font-serif text-primary mb-2">ไม่พบรายวิชาที่ค้นหา</h3>
+                <p class="text-secondary">ลองเปลี่ยนคำค้นหา หรือล้างตัวกรองเพื่อดูวิชาทั้งหมด</p>
+                <button id="empty-reset-btn" class="mt-6 px-6 py-2 btn-primary rounded-lg text-sm font-medium">ดูวิชาทั้งหมด</button>
+            </div>
+
+            <!-- Grid -->
+            <div id="subject-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Subject cards loaded dynamically -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Overlay for Mobile Drawer -->
+    <div id="filter-overlay" class="fixed inset-0 bg-primary/40 z-30 hidden backdrop-blur-sm"></div>
+
+    <!-- Subject Detail Modal -->
+    <div id="subject-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4 md:p-12 hidden">
+        <div class="modal-content bg-white w-full max-w-2xl rounded-2xl shadow-2xl relative overflow-hidden flex flex-col max-h-full">
+            
+            <div class="bg-primary px-6 py-6 pb-8 relative rounded-b-[40px]">
+                <button id="close-modal-btn" class="absolute top-4 right-4 text-white/70 hover:text-white bg-white/10 rounded-full p-2 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                <div class="flex flex-wrap gap-2 mb-3" id="modal-badges"></div>
+                <h2 id="modal-title-th" class="text-2xl md:text-3xl font-bold font-serif text-white mb-1"></h2>
+                <h3 id="modal-title-en" class="text-slate-300 font-medium"></h3>
+            </div>
+
+            <div class="p-6 md:p-8 overflow-y-auto">
+                <div class="mb-6">
+                    <h4 class="font-bold text-primary mb-2">คำอธิบายรายวิชา (Course Description)</h4>
+                    <p id="modal-desc" class="text-secondary leading-relaxed bg-slate-50 p-4 rounded-xl"></p>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-primary mb-3">มหาวิทยาลัยที่เปิดสอน</h4>
+                    <div id="modal-universities" class="flex flex-wrap gap-2"></div>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-slate-100 flex justify-end gap-3">
+                    <button id="modal-btn-study" class="px-6 py-2.5 btn-primary outline-none focus:outline-none rounded-xl font-medium shadow-md flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                        เข้าสู่บทเรียน
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Load mock data first -->
+    <script src="js/data.js"></script>
+    <!-- Load logic -->
+    <script src="js/catalog.js"></script>
+</body>
+</html>
