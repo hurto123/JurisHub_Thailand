@@ -1,0 +1,15 @@
+ollama
+pytesseract
+Pillow
+requests
+tqdm
+langchain
+langchain-community
+chromadb
+easyocr
+torch
+torchvision
+transformers
+pdf2image
+pymupdf
+pdfplumber

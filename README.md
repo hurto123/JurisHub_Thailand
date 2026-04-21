@@ -55,15 +55,15 @@
 
 ---
 
-## ⚙️ 4. โครงสร้างสายพานการผลิต (The 5-Step Pipeline)
+## ⚙️ 4. สถาปัตยกรรมใหม่ล่าสุด: AI Pipeline คู่ขนาน & RAG System
 
-ทุดครั้งที่คุณกด `run_pipeline.bat` ระบบจะวิ่งผ่านสายพานทำงานอัตโนมัติดังนี้:
+เพื่อรองรับข้อมูลที่มหาศาลและประหยัด VRAM ของการ์ดจอ (เช่น RTX 3050 4GB) เราได้ยกเครื่องระบบใหม่เป็น **Parallel Processing Pipeline** โดยแบ่งแยกการทำงานออกเป็น 5 สคริปต์หลัก:
 
-1. **Step 0: Multimodal Pre-processor** — แกะกล่องไฟล์ PDF/รูปภาพ ออกมาเป็นข้อความดิบ (.txt) โดยใช้ PyMuPDF (เร็ว) และ GOT-OCR (แม่น)
-2. **Step 1: Classifier** — ส่งข้อความดิบไปให้ Ollama วิเคราะห์ว่าเป็นวิชาไหน แล้วจัดเข้าลิ้นชักโฟลเดอร์ให้ถูกต้อง
-3. **Step 2: Rewriter** — ส่งไปให้ AI เรียบเรียงใหม่ให้สวยงามและเป็นระเบียบ แบ่งเป็นบทๆ (Chapters)
-4. **Step 3: Article Extractor** — สแกนหามาตรากฎหมายที่ปรากฏ แล้วสกัดออกมาเป็นฐานข้อมูลมาตราที่เกี่ยวข้อง
-5. **Step 4: Web Ingestor** — ขั้นตอนนี้คือ "คนรับงาน" นำข้อมูล JSON ทั้งหมดที่ AI คุยกันจบแล้ว มาเขียนเป็นไฟล์ `content-data.js` และ `articles-data.js` เพื่อรอให้หน้าเว็บเรียกไปแสดงผล
+1. **`json_builder.py` (OCR & JSON Parser)** — อ่านไฟล์ภาพข้อสอบ (`04_exam_raw`) และผ่านการรัน OCR ด้วยไลบรารี Tesseract (รันบน CPU) เพื่อจัดเรียงคำถามและธงคำตอบ รวมถึงแปลงไฟล์ `.txt` ที่ได้โครงสร้างแล้วให้เป็น JSON นำไปพักไว้ที่ `database/`
+2. **`ollama_summarizer.py` (Smart Chunking Summarizer)** — แก้ปัญหา Ollama ค้างจากการอ่านไฟล์ยาวเกินไป โดยแบ่งข้อความเป็นก้อน (Chunk) ละประมาณ 2,500 คำ และส่งให้ **DeepSeek** สรุปเป็นภาษาไทยอย่างละเอียดแบบ Real-time ทีละส่วน
+3. **`parallel_runner.py` (The Orchestrator)** — ระบบควบคุมการทำงานคู่ขนานด้วย Python `multiprocessing` เป็นตัวสั่งสคริปต์ที่ 1 และ 2 ให้รันไปพร้อมๆ กันโดยไม่แย่งทรัพยากรกัน (แยก CPU กับ GPU)
+4. **`update_viewer.py` (Web Injector)** — ตรวจจับว่ามีฐานข้อมูล JSON สร้างเสร็จใหม่หรือไม่ และคัดลอก/ฝังลงไปในไฟล์เว็บเพื่อแสดงผลทันที (`viewer.html`)
+5. **`rag_builder.py` (DeepSeek_LAW)** — **ระบบทนายความ AI ประจำตัว!** โดยใช้เทคโนโลยี **RAG (Retrieval-Augmented Generation)** ผ่าน `langchain` และ `chromadb` เพื่อดึงข้อมูลเฉพาะจากคลังเอกสารกฎหมายไทยที่เราป้อนให้มาตอบคำถาม ป้องกันไม่ให้ AI คิดข้อกฎหมายมั่วๆ ขึ้นมาเอง
 
 ---
 
@@ -71,30 +71,43 @@
 
 ### 💻 ความต้องการของระบบ (System Requirements)
 - **OS:** Windows 10/11 (Architecture 64-bit)
-- **Python:** 3.11, 3.12 หรือ 3.13 (แนะนำ 3.12 เพื่อความเสถียรสูงสุดของการ์ดจอ)
-- **RAM:** ขั้นต่ำ 8GB (แนะนำ 16GB ถ้าจะรันโมเดล Deepseek)
-- **Disk:** พื้นที่ว่างอย่างน้อย 10GB สำหรับเก็บโมเดล AI
+- **Python:** 3.10 ขึ้นไป
+- **GPU:** แนะนำตระกูล NVIDIA (ในที่นี้รองรับได้แม้แต่ RTX 3050 4GB VRAM)
+- **Disk:** พื้นที่ว่างอย่างน้อย 10GB สำหรับโมเดลและ Vector Database (ChromaDB)
 
-### 🛠 ขั้นตอนที่ 1: ติดตั้งสภาพแวดล้อม (Environment)
-1. ติดตั้ง Python จาก [Python.org](https://www.python.org/)
-2. เปิด CMD รันคำสั่งติดตั้งคลังเครื่องมือขั้นพื้นฐาน:
-   ```cmd
-   ocr_setup.bat
-   pip install PyMuPDF torchvision --no-deps --force-reinstall
-   ```
+### 🛠 ขั้นตอนที่ 1: ติดตั้งโปรแกรมรัน OCR ตัวหนังสือ (Tesseract)
+เพื่อลดภาระการ์ดจอ เราจำเป็นต้องใช้ตัวช่วยอ่านภาพ:
+1. ดาวน์โหลด [Tesseract OCR for Windows](https://github.com/UB-Mannheim/tesseract/wiki)
+2. ติดตั้งโดยเลือก **Additional language data -> Thai**
+3. **สำคัญ:** คัดลอก Path ของโปรแกรม (เช่น `C:\Program Files\Tesseract-OCR`) ไปใส่ใน `Environment Variables -> Path` ของ Windows
 
-### 🛠 ขั้นตอนที่ 2: ติดตั้งหุ่นยนต์ AI (Ollama)
-1. ดาวน์โหลดและติดตั้ง Ollama จาก [Ollama.com](https://ollama.com/)
-2. เปิด PowerShell แล้วสั่งดาวน์โหลดสมองกล:
-   ```powershell
-   ollama pull deepseek-r1:8b
-   ```
+### 🛠 ขั้นตอนที่ 2: ติดตั้งสภาพแวดล้อม (Python Libraries)
+เปิด Command Prompt หรือ PowerShell เข้าไปที่หน้าต่างของ AI Pipeline แล้วติดตั้งเครื่องมือที่กำหนด:
+```cmd
+cd ai_pipeline
+pip install -r requirements.txt
+```
 
-### 🛠 ขั้นตอนที่ 3: กระบวนการใช้งานรายวัน
-1. นำไฟล์ที่อยากให้ AI อ่าน (PDF/ภาพ) วางไว้ที่: `data/00_inbox/`
-2. ดับเบิ้ลคลิกไฟล์: `ai_pipeline\run_pipeline.bat`
-3. **ห้ามปิดหน้าจอระหว่างรัน:** ระบบจะคำนวณทีละหน้า ช้าหรือเร็วขึ้นอยู่กับความเร็ว CPU ของเครื่องคุณ
-4. เมื่อจบงาน ให้เปิดไฟล์ `index.html` เพื่อเริ่มเรียน!
+### 🛠 ขั้นตอนที่ 3: ติดตั้งหุ่นยนต์ AI และฐานความรู้ (Ollama Models)
+ดาวน์โหลดและติดตั้ง Ollama จาก [Ollama.com](https://ollama.com/) แล้วรันคำสั่งดึงโมเดลสำหรับ 4GB VRAM:
+```powershell
+ollama pull deepseek-r1:1.5b
+ollama pull nomic-embed-text
+```
+
+### 🛠 ขั้นตอนที่ 4: กระบวนการประมวลผลและการใช้งาน (Usage)
+เมื่อต้องการย่อยหนังสือกฎหมายและดึงข้อสอบเข้าเว็บ คุณสามารถใช้คำสั่ง:
+```powershell
+python parallel_runner.py
+```
+และหากต้องการส่งข้อมูลเข้าเว็บ:
+```powershell
+python update_viewer.py
+```
+**พิเศษ!** คุณสามารถแชทปรึกษาข้อกฎหมายกับทนาย AI ที่อ้างอิงตำราของคุณเองได้ ผ่านคำสั่ง:
+```powershell
+python rag_builder.py
+```
 
 ---
 
@@ -107,9 +120,10 @@
 - **เลเยอร์ 3 (เอกสารต้นฉบับ):** จะถูกใช้เป็นข้อมูลดิบในเครื่องเจ้าของเท่านั้น และจะถูก "ซ่อน" (Soft-Delete) ออกจากหน้าเว็บไซต์อัตโนมัติหากมีปัญหาด้านลิขสิทธิ์
 
 ### Roadmap ในอนาคต
-- [ ] ระบบค้นหาแบบ Full-text Search ค้นหามาตราข้ามบทได้ทันที
+- [x] อัปเกรดระบบเป็น Parallel Processing เพื่อลดคอขวดของคลังข้อมูลขนาดใหญ่
+- [x] เพิ่มระบบ RAG ฐานข้อมูล Vector (DeepSeek_LAW) ช่วยค้นหาเนื้อหาที่แม่นยำ
+- [ ] ระบบค้นหาแบบ Full-text Search ค้นหามาตราข้ามบทได้ทันทีผ่านเว็บไซต์
 - [ ] ระบบสะสมแต้มความรู้ (Study Points) สำหรับนักศึกษา
-- [ ] ระบบ Quiz ที่สร้างโจทย์ขึ้นมาจากเนื้อหาที่ AI สแกนมา
 
 ---
 **JurisHub Thailand** | *"Technology for Justice"*
