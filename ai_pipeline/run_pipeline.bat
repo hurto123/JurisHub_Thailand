@@ -1,15 +1,17 @@
 @echo off
 chcp 65001 >nul
-echo --------------------------------------------------------------
+echo ==============================================================
 echo JurisHub Thailand AI Factory (Multimodal Pipeline)
-echo --------------------------------------------------------------
+echo ==============================================================
 echo.
 
-set MODEL=deepseek-r1:8b
+rem --- CONFIGURATION ---
+set ROUTER_MODEL=gemma2:2b
+set REASONER_MODEL=deepseek-r1:8b
+rem ---------------------
 
 echo [Step 0] Pre-processing Multimodal Files (PDF/Images)...
 echo --------------------------------------------------------------
-rem Process images and PDFs
 python ai_pipeline/step0_multimodal.py
 
 echo.
@@ -23,28 +25,35 @@ if %ERRORLEVEL% NEQ 0 (
 
 echo.
 echo --------------------------------------------------------------
-echo [STEP 1] Classifier
+echo [STEP 1] Classifier (Using: %ROUTER_MODEL%)
 echo Sorting files...
 echo --------------------------------------------------------------
-python ai_pipeline/step1_classifier.py -m %MODEL%
+python ai_pipeline/step1_classifier.py -m %ROUTER_MODEL%
 
 echo.
 echo --------------------------------------------------------------
-echo [STEP 2] Rewriter
+echo [STEP 2] Rewriter (Using: %REASONER_MODEL%)
 echo Paraphrasing content...
 echo --------------------------------------------------------------
-python ai_pipeline/step2_rewriter.py -m %MODEL%
+python ai_pipeline/step2_rewriter.py -m %REASONER_MODEL%
 
 echo.
 echo --------------------------------------------------------------
-echo [STEP 3] Article Extractor
+echo [STEP 3] Article Extractor (Using: %REASONER_MODEL%)
 echo Summarizing legal articles...
 echo --------------------------------------------------------------
-python ai_pipeline/step3_extractor.py -m %MODEL%
+python ai_pipeline/step3_extractor.py -m %REASONER_MODEL%
 
 echo.
 echo --------------------------------------------------------------
-echo [STEP 4] Web Ingestor
+echo [STEP 4] Exam Parser (Using: %ROUTER_MODEL%)
+echo Extracting questions and answers...
+echo --------------------------------------------------------------
+python ai_pipeline/step4_exam_parser.py -m %ROUTER_MODEL%
+
+echo.
+echo --------------------------------------------------------------
+echo [STEP 5] Web Ingestor
 echo Updating website database and building final JS files...
 echo --------------------------------------------------------------
 python ai_pipeline/ingest_all.py
